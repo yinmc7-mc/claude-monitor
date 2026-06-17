@@ -1,7 +1,11 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useSessionStore } from '../store/sessionStore';
 
-const WS_URL = `ws://${window.location.hostname}:3000/ws`;
+const IS_DEV = window.location.hostname === 'localhost';
+const WS_URL = IS_DEV
+  ? `ws://${window.location.hostname}:3000/ws`
+  : `wss://${window.location.hostname}/ws`;
+
 const MAX_RETRIES = 5;
 const BASE_DELAY = 1000;
 
@@ -70,6 +74,11 @@ export function useWebSocket() {
 
   useEffect(() => {
     mountedRef.current = true;
+    // Only attempt WebSocket on localhost
+    if (!IS_DEV) {
+      setConnectionStatus('offline');
+      return;
+    }
     connect();
     return () => { mountedRef.current = false; };
   }, [connect]);
