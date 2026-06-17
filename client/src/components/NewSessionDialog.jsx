@@ -1,18 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X } from 'lucide-react';
 
+function defaultLabel() {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `CC ${mm}-${dd}`;
+}
+
 export default function NewSessionDialog({ onClose }) {
-  const [label, setLabel] = useState('');
-  const [workingDir, setWorkingDir] = useState('');
+  const [label, setLabel] = useState(defaultLabel());
+  const [workingDir, setWorkingDir] = useState('/Users/yinmeichao.1');
   const [prompt, setPrompt] = useState('');
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    fetch('/api/config')
-      .then(r => r.json())
-      .then(c => setWorkingDir(c.workingDirectory || ''))
-      .catch(() => setWorkingDir(''));
-  }, []);
 
   async function handleSubmit() {
     if (!label || !workingDir || !prompt) return;
