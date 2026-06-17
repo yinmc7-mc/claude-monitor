@@ -1,0 +1,23 @@
+{
+  "name": "claude-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,green \"node --watch server/index.js\" \"cd client && npm run dev\"",
+    "start": "node server/index.js",
+    "build": "cd client && npm run build"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "ws": "^8.18.0",
+    "better-sqlite3": "^11.6.0",
+    "node-notifier": "^10.0.1",
+    "uuid": "^10.0.0",
+    "cors": "^2.8.5",
+    "chokidar": "^4.0.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
