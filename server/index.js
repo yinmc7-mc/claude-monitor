@@ -65,13 +65,19 @@ app.get('/api/sessions/:id', (req, res) => {
 });
 
 app.post('/api/sessions', (req, res) => {
-  const { label, workingDirectory, prompt, model } = req.body;
-  if (!label || !workingDirectory || !prompt) {
-    return res.status(400).json({ error: 'label, workingDirectory, and prompt are required' });
+  const { label, workingDirectory, prompt, model, terminal } = req.body;
+  if (!label || !workingDirectory) {
+    return res.status(400).json({ error: 'label and workingDirectory are required' });
   }
 
   try {
-    const session = sm.createSession({ label, workingDirectory, prompt, model });
+    const session = sm.createSession({
+      label,
+      workingDirectory,
+      prompt: prompt || label,
+      model: model || 'claude-opus-4-7',
+      terminal: terminal || 'claude',
+    });
     sm.updateStatus(session.id, 'STARTING');
     pm.startSession(session);
     broadcastSessionCreated(session.id);

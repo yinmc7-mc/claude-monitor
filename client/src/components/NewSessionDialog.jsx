@@ -1,21 +1,32 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Terminal } from 'lucide-react';
 
-function defaultLabel() {
+const TERMINALS = [
+  { id: 'claude', name: 'Claude Code', icon: 'CC' },
+  { id: 'openclaw', name: 'OpenClaw', icon: 'OC' },
+];
+
+function defaultLabel(terminal) {
   const d = new Date();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
-  return `CC ${mm}-${dd}`;
+  const prefix = terminal === 'openclaw' ? 'OC' : 'CC';
+  return `${prefix} ${mm}-${dd}`;
 }
 
 export default function NewSessionDialog({ onClose }) {
-  const [label, setLabel] = useState(defaultLabel());
+  const [terminal, setTerminal] = useState('claude');
+  const [label, setLabel] = useState(defaultLabel('claude'));
   const [workingDir, setWorkingDir] = useState('/Users/yinmeichao.1');
-  const [prompt, setPrompt] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  function handleTerminalChange(id) {
+    setTerminal(id);
+    setLabel(defaultLabel(id));
+  }
+
   async function handleSubmit() {
-    if (!label || !workingDir || !prompt) return;
+    if (!label || !workingDir) return;
     setSubmitting(true);
     try {
       await fetch('/api/sessions', {
@@ -24,7 +35,8 @@ export default function NewSessionDialog({ onClose }) {
         body: JSON.stringify({
           label: label.trim(),
           workingDirectory: workingDir.trim(),
-          prompt: prompt.trim(),
+          prompt: '',
+          terminal,
         }),
       });
       onClose();
@@ -45,6 +57,28 @@ export default function NewSessionDialog({ onClose }) {
         </div>
 
         <div className="space-y-4">
+          {/* Terminal selector */}
+          <div>
+            <label className="block text-sm text-zinc-400 mb-2">终端</label>
+            <div className="flex gap-2">
+              {TERMINALS.map(t => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => handleTerminalChange(t.id)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    terminal === t.id
+                      ? 'bg-zinc-200 text-zinc-900'
+                      : 'bg-[#0a0a0a] border border-zinc-700 text-zinc-400 hover:border-zinc-500'
+                  }`}
+                >
+                  <Terminal size={14} />
+                  {t.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm text-zinc-400 mb-1">任务名称</label>
             <input
@@ -64,24 +98,13 @@ export default function NewSessionDialog({ onClose }) {
               className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-md px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-zinc-500 font-mono"
             />
           </div>
-
-          <div>
-            <label className="block text-sm text-zinc-400 mb-1">任务 Prompt</label>
-            <textarea
-              value={prompt}
-              onChange={e => setPrompt(e.target.value)}
-              placeholder="描述你要 Claude 帮你做什么..."
-              rows={3}
-              className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-md px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-zinc-500 resize-none"
-            />
-          </div>
         </div>
 
         <div className="flex justify-end gap-2 mt-6">
           <button onClick={onClose} className="px-4 py-2 text-zinc-500 hover:text-zinc-300 text-sm">取消</button>
           <button
             onClick={handleSubmit}
-            disabled={!label || !workingDir || !prompt || submitting}
+            disabled={!label || !workingDir || submitting}
             className="px-4 py-2 bg-zinc-200 hover:bg-white disabled:opacity-40 text-zinc-900 rounded-md text-sm font-medium transition-colors"
           >
             {submitting ? '启动中...' : '启动'}

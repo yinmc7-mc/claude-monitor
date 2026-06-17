@@ -4,17 +4,23 @@ import { parseEvent, processRawText } from './outputParser.js';
 
 const running = new Map();
 
+const TERMINAL_COMMANDS = {
+  claude: 'claude',
+  openclaw: 'openclaw',
+};
+
 export function startSession(session) {
+  const cmd = TERMINAL_COMMANDS[session.terminal] || 'claude';
   const args = [
     '--output-format', 'stream-json',
     '--verbose',
     '--print',
     '--dangerously-skip-permissions',
     '-p',
-    session.command || session.prompt || '',
+    session.prompt || session.command || '',
   ];
 
-  const proc = spawn('claude', args, {
+  const proc = spawn(cmd, args, {
     cwd: session.workingDirectory || process.cwd(),
     env: { ...process.env },
     stdio: ['pipe', 'pipe', 'pipe'],

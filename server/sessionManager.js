@@ -15,14 +15,15 @@ const STATUS_TRANSITIONS = {
   INTERRUPTED: [],
 };
 
-export function createSession({ label, workingDirectory, prompt, model }) {
+export function createSession({ label, workingDirectory, prompt, model, terminal }) {
   const id = uuidv4();
   const session = {
     id,
     label,
     workingDirectory,
-    command: prompt,
-    model: model || 'claude-opus-4-5',
+    command: prompt || label,
+    model: model || 'claude-opus-4-7',
+    terminal: terminal || 'claude',
     status: 'IDLE',
     createdAt: Date.now(),
     updatedAt: Date.now(),
