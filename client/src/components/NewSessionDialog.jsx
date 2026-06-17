@@ -29,7 +29,7 @@ export default function NewSessionDialog({ onClose }) {
     if (!label || !workingDir) return;
     setSubmitting(true);
     try {
-      await fetch('/api/sessions', {
+      const res = await fetch('/api/sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -39,11 +39,12 @@ export default function NewSessionDialog({ onClose }) {
           terminal,
         }),
       });
+      if (!res.ok) throw new Error(await res.text());
       onClose();
     } catch {
+      alert('需要本地运行：此功能仅在本地环境下可用。在终端运行 npm run dev 启动本地 Monitor。');
       setSubmitting(false);
     }
-  }
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={onClose}>
