@@ -1,9 +1,10 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useSessionStore } from '../store/sessionStore';
 
-const IS_DEV = window.location.hostname === 'localhost';
-const WS_URL = IS_DEV
-  ? `ws://${window.location.hostname}:3000/ws`
+const IS_ELECTRON = typeof window !== 'undefined' && window.electronAPI !== undefined;
+const IS_DEV = window.location.hostname === 'localhost' || window.location.port === '5173';
+const WS_URL = IS_ELECTRON || IS_DEV
+  ? `ws://localhost:3000/ws`
   : `wss://${window.location.hostname}/ws`;
 
 const MAX_RETRIES = 5;
@@ -74,8 +75,7 @@ export function useWebSocket() {
 
   useEffect(() => {
     mountedRef.current = true;
-    // Only attempt WebSocket on localhost
-    if (!IS_DEV) {
+    if (!IS_ELECTRON && !IS_DEV) {
       setConnectionStatus('offline');
       return;
     }

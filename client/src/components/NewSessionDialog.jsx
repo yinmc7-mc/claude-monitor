@@ -42,9 +42,10 @@ export default function NewSessionDialog({ onClose }) {
       if (!res.ok) throw new Error(await res.text());
       onClose();
     } catch {
-      alert('需要本地运行：此功能仅在本地环境下可用。在终端运行 npm run dev 启动本地 Monitor。');
+      alert('无法连接到 Monitor 服务。请确认服务正在运行。');
       setSubmitting(false);
     }
+  }
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={onClose}>
